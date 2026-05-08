@@ -110,7 +110,7 @@
     
     \paragraph{Error Handling and Retry Behavior.} Azure Queue Storage provides automatic retry with configurable visibility timeout. If a function throws an unhandled exception, the message becomes visible again after the timeout expires. After exceeding the maximum dequeue count, the message is moved to the poison queue.
     Additionally, the pipeline logs status transitions (\texttt{IN\_PROGRESS}, \texttt{COMPLETED}, \texttt{FAILED}) for each stage in \texttt{PIPELINEEXECUTIONLOG}. On failure, all in-progress stages are marked \texttt{FAILED} and the conversation's \texttt{EvaluationStatus} is set to \texttt{FAILED}, allowing operators to identify and reprocess failed conversations through the pipeline stats API.
-    \paragraph{Pipeline Orchestration.} The pipeline is triggered via timmer trigger (\texttt{ScheduledEchoFetch}) that runs daily at 1 AM CT. The function syncs coach data from Echo, fetches yesterday's conversations, uploads each to staging blob storage, and enqueues ETL messages. A watermark (\texttt{PIPELINEWATERMARK} table) tracks the last successful run timestamp to prevent duplicate processing.
+    \paragraph{Pipeline Orchestration.} The pipeline is triggered via timer trigger (\texttt{ScheduledEchoFetch}) that runs daily at 1 AM CT. The function syncs coach data from Echo, fetches yesterday's conversations, uploads each to staging blob storage, and enqueues ETL messages. A watermark (\texttt{PIPELINEWATERMARK} table) tracks the last successful run timestamp to prevent duplicate processing.
     \paragraph{Blob Storage Layout.}
     
     \begin{itemize}
