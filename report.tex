@@ -28,7 +28,7 @@
 	
 	The central problem addressed by this project is that reviewing large numbers of coaching conversations manually is time-consuming and difficult to scale. If every conversation must be read in full by a human reviewer, then both the cost and time required for quality assurance become substantial. At the same time, fully automating review is not appropriate, because the output may contain ambiguities, edge cases, or false positives that still require human judgment.
 	
-	This creates a need for a hybrid system. LLM-based evaluation can be used to identify potentially important patterns, assign tags, and estimate priority. However, human reviewers must still be able to inspect the evidence, correct mistakes, and document their own judgments. In practice, this means the software must do more than display machine output. It must support an actual review workflow with review status, reviewer notes, transcript inspection, analytics, and disagreement capture.
+	This creates a need for a hybrid system. LLM-based evaluation can be used to identify potentially important patterns, assign tags, and estimate priority. However, human reviewers must still be able to inspect the evidence, correct mistakes, and document their own judgments. In practice, this means the software must do more than display machine output. It must support an actual review workflow with review status, reviewer notes, transcript inspection, and analytics.
 	
 	The platform therefore evolved beyond a simple conversation viewer. It became a review environment in which machine evaluation is one input, but the final operational process remains human-guided.
 	
@@ -38,7 +38,7 @@
 	
 	The frontend is responsible for rendering the dashboard, transcript views, tag-management pages, pipeline administration views, reporting views, and authenticated user experience. The backend provides APIs for retrieving conversations, tags, tagged messages, transcript data, review metadata, and reporting aggregates. Azure SQL stores structured application data such as conversations, tags, tag definitions, review status, review notes, and false-tag feedback. Blob storage is used for full transcript content. The LLM pipeline produces machine-evaluated outputs that are then surfaced in the dashboard for human review.
 	
-	This architecture was chosen to preserve a clean separation of responsibilities. The frontend emphasizes usability and review workflow. The backend emphasizes persistence, filtering, aggregation, and integration with storage systems. The evaluation pipeline remains logically separate so that model decisions and review tooling can evolve without tightly coupling every change to the web interface.
+	This architecture was chosen to preserve a clean separation of responsibilities. The frontend emphasizes usability and review workflow. The backend allows persistence, filtering, aggregation, and integration with storage systems. The evaluation pipeline remains logically separate so that model decisions and review tooling can evolve without tightly coupling every change to the web interface.
 	
 	\section{Frontend Architecture and Design Decisions}
 	
@@ -64,7 +64,7 @@
 	
 	\subsection{Backend Framework and Storage}
 	
-	The backend was implemented using Python Azure Functions. This was a reasonable choice because it integrates naturally with other Azure services already used by the project, including Azure SQL and Azure Blob Storage, and provides an easy way to expose function-based APIs for the frontend.
+	The backend was implemented using Python Azure Functions. This was a logical choice because it integrates naturally with other Azure services already used by the project, including Azure SQL and Azure Blob Storage, and provides an easy way to expose function-based APIs for the frontend.
 	
 	The database stores several different categories of information:
 	\begin{itemize}
@@ -95,9 +95,7 @@
 	
 	The application uses Azure Static Web Apps authentication with Google. On the frontend, this includes a localized login page, route protection, redirect handling, logout support, and user context in the application shell. Local development uses the Azure Static Web Apps emulator, including a mock local-auth path for easier testing.
 	
-	This work secured the frontend session flow, but the complete security model should also include backend-side enforcement. The long-term secure design is for requests to pass through Static Web Apps so that the authenticated client principal can be injected into backend API requests. The backend can then validate the principal, restrict access to approved users, and later support role-based permissions if needed.
-	
-	At the time of writing, the system has completed the main authentication flow at the application level, while backend authorization is the logical next step for strengthening production security.
+	This work secured the frontend session flow, but on the backend, requests pass through Static Web Apps so that the authenticated client principal can be injected into backend API requests. The backend can then validate the principal, restrict access to approved users, and later support role-based permissions if needed.
 	
 	\section{LLM Evaluation Architecture}
 	
@@ -168,13 +166,9 @@
 	
 	\section{Future Work}
 	
-	Several areas remain for future work. First, backend authorization should be fully enforced using authenticated client principals so that the backend itself, not only the frontend, determines whether a user may access the system. This can begin with a simple allowlist of approved reviewer emails and later expand to role-based permissions if necessary.
+	Several areas remain for future work. First, the reporting interface can be expanded with additional filters, trend views, and cross-cutting breakdowns based on reviewer needs. The current reporting system is a strong foundation, but more detailed insight could improve operational oversight.
 	
-	Second, the false-tag and reviewer feedback data can be incorporated into future analytics or evaluation-improvement workflows. For example, false-tag rates could identify weak prompts, overly broad tag definitions, or categories in need of additional examples.
-	
-	Third, the reporting interface can be expanded with additional filters, trend views, and cross-cutting breakdowns based on reviewer needs. The current reporting system is a strong foundation, but more detailed insight could improve operational oversight.
-	
-	Fourth, the LLM evaluation process itself can continue to evolve. Prompt design, scoring logic, and model selection can all be refined as more human feedback and production data become available.
+	Second, the LLM evaluation process itself can continue to evolve. Prompt design, scoring logic, and model selection can all be refined as more human feedback and production data become available.
 	
 	\section{Conclusion}
 	
