@@ -4,6 +4,7 @@
 \usepackage{xcolor}
 \usepackage{setspace}
 \usepackage{hyperref}
+\usepackage{graphicx}
 
 \setstretch{1.15}
 
@@ -64,7 +65,7 @@
 	
 	\subsection{Backend Framework and Storage}
 	
-	The backend was implemented using Python Azure Functions. This was a logical choice because it integrates naturally with other Azure services already used by the project, including Azure SQL and Azure Blob Storage, and provides an easy way to expose function-based APIs for the frontend.
+	The backend was implemented using Python Azure Functions. This was a logical choice because it integrates naturally with other Azure services, including Azure SQL and Azure Blob Storage, and provides an serverless way to expose function-based APIs for the frontend, which reduces cost in the long-run.
 	
 	The database stores several different categories of information:
 	\begin{itemize}
@@ -77,8 +78,56 @@
 		\item reporting and pipeline support data
 	\end{itemize}
 	
-	Blob storage is used for transcript payloads so that the full message content does not need to be duplicated inefficiently in every relational query path.
-	
+	Blob storage is used for transcript payloads so that the full message content does not need to be duplicated inefficiently in every relational query path. Our ER diagram for the database is shown in figure 1.
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.5\linewidth]{er-diagram.png}
+        \caption{Database ER diagram}
+        \label{fig:placeholder}
+    \end{figure}
+
+    \subsection{Backend Processing Pipeline and Queue Architecture}
+    The core data processing pipeline is implemented as a multi-stage, queue-driven system using Azure Queue Storage to decouple ingestion from evaluation. This design ensures that failures in one stage do not cascade and that each conversation can be retried independently.
+    
+    The pipeline consists of two Azure Queue Storage queues and three logical stages per conversation:
+    \paragraph{Queues.}
+    \begin{itemize}
+        \item \textbf{echo-etl-queue} -- Receives messages from a scheduled data fetch function (\texttt{ScheduledEchoDetch}) that runs daily at 1 AM CT. Each message contains a \texttt{conversationId}, a \texttt{stagingPath} pointing to a blob in Azure Blob Storage, and a \texttt{correlationId} for traceability. This queue is consumed by the \texttt{ProcessStagingMessage} function.
+        
+        \item \textbf{evaluation-queue} -- Receives messages after staging is complete. Each message contains a \texttt{conversationId} and \texttt{correlationId}. This queue is consumed by the \texttt{EvaluateConversation} function, which performs the LLM-based tag evaluation.
+    \end{itemize}
+    
+    \paragraph{Pipeline Stages.} Each conversation progresses through three tracked stages, logged to the \texttt{PIPELINEEXECUTIONLOG} table:
+    
+    \begin{enumerate}
+        \item \textbf{INGESTION} -- Triggered when \texttt{ProcessStagingMessage} dequeues an ETL message. The function reads the conversation payload from the staging blob, upserts metadata into the \texttt{CONVERSATIONS} table, copies the transcript to the canonical blob container, and enqueues a message to \texttt{evaluation-queue}. The conversation's \texttt{EvaluationStatus} is set to \texttt{PROCESSING}.
+        
+        \item \textbf{EVALUATION} -- Triggered when \texttt{EvaluateConversation} dequeues an evaluation message. The function retrieves the canonical transcript blob, constructs a prompt using tag definitions from \texttt{TAG\_DEFINITIONS}, and sends the conversation to Azure AI Foundry for tag scoring. The raw LLM response is parsed, and scores are normalized against tag definitions.
+        
+        \item \textbf{FINALIZATION} -- Persists evaluation results to SQL. Tag records are inserted into \texttt{TAGS} with computed priority scores, and supporting message evidence is inserted into \texttt{TAGGEDMESSAGES}. The conversation's \texttt{EvaluationStatus} is set to \texttt{COMPLETED} and \texttt{ReviewStatus} defaults to \texttt{NEEDS\_REVIEW}.
+    \end{enumerate}
+    
+    \paragraph{Error Handling and Retry Behavior.} Azure Queue Storage provides automatic retry with configurable visibility timeout. If a function throws an unhandled exception, the message becomes visible again after the timeout expires. After exceeding the maximum dequeue count, the message is moved to the poison queue.
+    Additionally, the pipeline logs status transitions (\texttt{IN\_PROGRESS}, \texttt{COMPLETED}, \texttt{FAILED}) for each stage in \texttt{PIPELINEEXECUTIONLOG}. On failure, all in-progress stages are marked \texttt{FAILED} and the conversation's \texttt{EvaluationStatus} is set to \texttt{FAILED}, allowing operators to identify and reprocess failed conversations through the pipeline stats API.
+    \paragraph{Pipeline Orchestration.} The pipeline is triggered via timmer trigger (\texttt{ScheduledEchoFetch}) that runs daily at 1 AM CT. The function syncs coach data from Echo, fetches yesterday's conversations, uploads each to staging blob storage, and enqueues ETL messages. A watermark (\texttt{PIPELINEWATERMARK} table) tracks the last successful run timestamp to prevent duplicate processing.
+    \paragraph{Blob Storage Layout.}
+    
+    \begin{itemize}
+        \item \textbf{staging/} -- Temporary location for raw conversation payloads fetched from Echo, organized by date (\texttt{staging/conversations/YYYY/MM/DD/\{id\}.json}).
+        
+        \item \textbf{canonical/} -- Permanent storage for processed transcripts (\texttt{canonical/conversations/YYYY/MM/DD/\{id\}.json}). The \texttt{TranscriptURL} in the \texttt{CONVERSATIONS} table references blobs in this container.
+    \end{itemize}
+
+    An overview of the system architecture is shown in Figure 2.
+
+    \begin{figure}
+        \centering
+        \includegraphics[width= \linewidth]{backend-architecture.png}
+        \caption{System Architecture}
+        \label{fig:placeholder}
+    \end{figure}
+    
 	\subsection{Review Workflow Data Model}
 	
 	A key backend design decision was to separate machine-evaluation fields from human-review fields. Review status and reviewer notes are not the same as evaluation completion state, and the schema was adjusted to reflect that distinction. This improves clarity and prevents misleading UI behavior.
