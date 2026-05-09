@@ -155,6 +155,23 @@
 	This design choice reflects an important practical principle: for a system involving nuanced interpersonal conversations, the most useful role for an LLM is often triage and structured assistance rather than final autonomous decision-making.
 	
 	\subsection{Model Selection, Prompting, Fine-Tuning, and Cost Tradeoffs}
+
+    To begin with, we used Openrouter to quickly switch between different models. Early on, we made the key decision to use PromptFoo, an existing LLM evaluation framework. Combining these two technologies, were were rapidly able to experiment with different models, prompts, and evaluation prompts, all on real conversation data. 
+
+    We first tried a very cheap model, MiniMax M2.5, with \$0.15/M input tokens \$1.15/M output tokens. 
+    This helped us solidify a workable evaluation loop. 
+
+    At this point, we also had our first prompt version, which integrated stakeholder feedback. 
+    It had 10 tags, all in english, which were suggested by expert feedback from coaches. 
+    The small models (gpt-4o-mini and MiniMax M2.5) were performing significantly worse, even on small samples. 
+    Accuracies were as low as 46.67\% (7/15 conversations succesfully tagged). 
+    However, a midrange model (Z.ai: GLM 5 Turbo) with \$1.20/M input tokens \$4/M output tokens was performing much better, with 85.71\% passing (12/14).
+
+    We then tried a very expensive model to test the feasibility of LLM-evaluations. 
+    Namely, we used claude-sonnet-4.6 at \$3/M input tokens and \$15/M output tokens.
+    Even with our naive first prompt, the model had great performance, with 100\% accuracy on a small sample (14/14).
+
+
 	
 	{\color{red}
 		This section should describe the actual LLM decisions made in the project. In particular, it should explain:
@@ -175,6 +192,10 @@
 	}
 	
 	\subsection{Prompt Quality and Reviewability}
+
+    Our prompts were refined over time to meet our stakeholders' original vision of the tagging behavior.
+    For instance, one of our tags (Privacy Risk), had to be continuously refined, since the LLM was incorrectly flagging coaches who were sharing official ministry resources.
+
 	
 	{\color{red}
 		This section should explain how prompt refinement affected system behavior in practice. Good topics include:
