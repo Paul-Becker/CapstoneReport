@@ -187,7 +187,9 @@
                 clip=false,
                 symbolic y coords={MiniMax M2.5, GPT-4o-mini, GLM-5 Turbo, Claude Sonnet 4.6},
                 ytick=data,
-                yticklabel style={font=\small},
+                yticklabels={{MiniMax M2.5 (\$1.15/M)},{GPT-4o-mini (\$0.60/M)},{GLM-5 Turbo (\$4.00/M)},{Claude Sonnet 4.6 (\$15.00/M)}},
+                yticklabel style={font=\small, align=right},
+                title={\small Output token costs shown in parentheses},
                 nodes near coords,
                 nodes near coords align={horizontal},
                 nodes near coords style={font=\small},
@@ -202,7 +204,7 @@
             };
             \end{axis}
         \end{tikzpicture}
-        \caption{Tagging accuracy by model on the first prompt version. Input token costs: MiniMax~M2.5 \$0.15/M, GPT-4o-mini \$0.15/M, GLM-5~Turbo \$1.20/M, Claude~Sonnet~4.6 \$3.00/M.}
+        \caption{Tagging accuracy by model on the first prompt version.}
         \label{fig:model-accuracy}
     \end{figure}
 
