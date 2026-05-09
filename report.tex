@@ -5,6 +5,7 @@
 \usepackage{setspace}
 \usepackage{hyperref}
 \usepackage{graphicx}
+\usepackage{float}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 
@@ -169,16 +170,11 @@
     Accuracies were as low as 46.67\% (7/15 conversations succesfully tagged). 
     However, a midrange model (Z.ai: GLM 5 Turbo) with \$1.20/M input tokens \$4/M output tokens was performing much better, with 85.71\% passing (12/14).
 
-    We then tried a very expensive model to test the feasibility of LLM-evaluations. 
+    We then tried a very expensive model to test the feasibility of LLM-evaluations.
     Namely, we used claude-sonnet-4.6 at \$3/M input tokens and \$15/M output tokens.
     Even with our naive first prompt, the model had great performance, with 100\% accuracy on a small sample (14/14).
 
-    Eventually, due to model constraints with Microsoft Foundry and cost constraints, we settled on gpt-5-mini (\$0.25/M input token \$2/M output tokens).
-    To improve the prompt, we included example conversation flags derived from the output of previous experimentation and expert feedback. This allowed us to reach very high accuracy, 90.98\% passing (363/399 cases). 
-    Furthermore, we used an AI prompt refiner, and scored an even higher accuracy, on an even bigger sample 95.30\% passing (1603/1682 cases). 
-    Our experiments demonstrated that through prompt refinement, lower cost models can perform exceptionally on narrow tasks.
-
-    \begin{figure}[htbp]
+    \begin{figure}[H]
         \centering
         \begin{tikzpicture}
             \begin{axis}[
@@ -217,13 +213,13 @@
         \caption{Tagging accuracy by model on the first prompt version.}
         \label{fig:model-accuracy}
     \end{figure}
-	
-	\subsection{Prompt Quality and Reviewability}
 
-    Our prompts were refined over time to meet our stakeholders' original vision of the tagging behavior.
-    For instance, one of our tags (Privacy Risk), had to be continuously refined, since the LLM was incorrectly flagging coaches who were sharing official ministry resources.
+    Eventually, due to model constraints with Microsoft Foundry and cost constraints, we settled on gpt-5-mini (\$0.25/M input token \$2/M output tokens).
+    To improve the prompt, we included example conversation flags derived from the output of previous experimentation and expert feedback. This allowed us to reach very high accuracy, 90.98\% passing (363/399 cases).
+    Furthermore, we used an AI prompt refiner, and scored an even higher accuracy, on an even bigger sample 95.30\% passing (1603/1682 cases).
+    Our experiments demonstrated that through prompt refinement, lower cost models can perform exceptionally on narrow tasks.
 
-    \begin{figure}[htbp]
+    \begin{figure}[H]
         \centering
         \begin{tikzpicture}
             \begin{axis}[
@@ -265,6 +261,11 @@
         \caption{Effect of prompt refinement on accuracy. GPT-5-mini (\$2.00/M output) with an AI-refined prompt reaches 95.30\%, approaching Claude Sonnet 4.6 (\$15.00/M output) at 100\% on the naive first prompt.}
         \label{fig:prompt-refinement}
     \end{figure}
+
+	\subsection{Prompt Quality and Reviewability}
+
+    Our prompts were refined over time to meet our stakeholders' original vision of the tagging behavior.
+    For instance, one of our tags (Privacy Risk), had to be continuously refined, since the LLM was incorrectly flagging coaches who were sharing official ministry resources.
 
 	\section{Human-in-the-Loop Review as a Design Principle}
 	
