@@ -173,6 +173,11 @@
     Namely, we used claude-sonnet-4.6 at \$3/M input tokens and \$15/M output tokens.
     Even with our naive first prompt, the model had great performance, with 100\% accuracy on a small sample (14/14).
 
+    Eventually, due to model constraints with Microsoft Foundry and cost constraints, we settled on gpt-5-mini (\$0.25/M input token \$2/M output tokens).
+    To improve the prompt, we included example conversation flags derived from the output of previous experimentation and expert feedback. This allowed us to reach very high accuracy, 90.98\% passing (363/399 cases). 
+    Furthermore, we used an AI prompt refiner, and scored an even higher accuracy, on an even bigger sample 95.30\% passing (1603/1682 cases). 
+    Our experiments demonstrated that through prompt refinement, lower cost models can perform exceptionally on narrow tasks.
+
     \begin{figure}[htbp]
         \centering
         \begin{tikzpicture}
@@ -187,9 +192,14 @@
                 clip=false,
                 symbolic y coords={MiniMax M2.5, GPT-4o-mini, GLM-5 Turbo, Claude Sonnet 4.6},
                 ytick=data,
-                yticklabels={{MiniMax M2.5 (\$1.15/M)},{GPT-4o-mini (\$0.60/M)},{GLM-5 Turbo (\$4.00/M)},{Claude Sonnet 4.6 (\$15.00/M)}},
-                yticklabel style={font=\small, align=right},
-                title={\small Output token costs shown in parentheses},
+                yticklabels={
+                    {\shortstack[r]{MiniMax M2.5\\\footnotesize\$1.15/M}},
+                    {\shortstack[r]{GPT-4o-mini\\\footnotesize\$0.60/M}},
+                    {\shortstack[r]{GLM-5 Turbo\\\footnotesize\$4.00/M}},
+                    {\shortstack[r]{Claude Sonnet 4.6\\\footnotesize\$15.00/M}}
+                },
+                yticklabel style={align=right},
+                title={\small Output token costs shown below model names},
                 nodes near coords,
                 nodes near coords align={horizontal},
                 nodes near coords style={font=\small},
