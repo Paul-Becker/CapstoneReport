@@ -269,10 +269,12 @@
                 xmajorgrids=true,
                 grid style={dashed, gray!40},
             ]
-            \addplot[fill=red!50,    draw=red!70]    coordinates {(46.67,small)};
-            \addplot[fill=orange!60, draw=orange!80] coordinates {(90.98,gpt5few)};
-            \addplot[fill=green!50,  draw=green!70]  coordinates {(95.30,gpt5ai)};
-            \addplot[fill=blue!40,   draw=blue!60]   coordinates {(100,claude)};
+            \addplot[fill=blue!45, draw=blue!65] coordinates {
+                (46.67,small)
+                (90.98,gpt5few)
+                (95.30,gpt5ai)
+                (100,claude)
+            };
             \end{axis}
         \end{tikzpicture}
         \caption{Effect of prompt refinement on accuracy. GPT-5-mini (\$2.00/M output) with an AI-refined prompt reaches 95.30\%, approaching Claude Sonnet 4.6 (\$15.00/M output) at 100\% on the naive first prompt.}
