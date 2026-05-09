@@ -217,25 +217,6 @@
         \caption{Tagging accuracy by model on the first prompt version.}
         \label{fig:model-accuracy}
     \end{figure}
-
-
-	{\color{red}
-		This section should describe the actual LLM decisions made in the project. In particular, it should explain:
-		\begin{itemize}
-			\item which model or models were tested or selected
-			\item why those models were chosen
-			\item whether the project used prompting only, fine-tuning, retrieval, or some hybrid approach
-			\item how prompts were refined over time
-			\item what failure cases were observed during prompt iteration
-			\item how output quality was evaluated
-			\item what tradeoffs were considered between model power, latency, and cost
-			\item whether a smaller or cheaper model was sufficient for some subtasks
-			\item whether different models were used for different stages, such as tagging, rationale generation, or scoring
-			\item how hallucination risk, overflagging, and underflagging were managed
-		\end{itemize}
-		
-		This section should also explain whether the system used fixed tag instructions, versioned prompt templates, few-shot examples, or any structured output format. If there was a decision not to fine-tune, this section should state why. If fine-tuning was considered, it should explain what training data would be needed and what risks or costs would be associated with that approach.
-	}
 	
 	\subsection{Prompt Quality and Reviewability}
 
@@ -285,17 +266,6 @@
         \label{fig:prompt-refinement}
     \end{figure}
 
-	{\color{red}
-		This section should explain how prompt refinement affected system behavior in practice. Good topics include:
-		\begin{itemize}
-			\item examples of prompts becoming more specific over time
-			\item how rationale quality changed after refinement
-			\item whether tags became too broad or too narrow
-			\item whether score normalization or label simplification changed prompt behavior
-			\item how human reviewer feedback informed prompt revisions
-		\end{itemize}
-	}
-	
 	\section{Human-in-the-Loop Review as a Design Principle}
 	
 	One of the strongest decisions in this project was to preserve the role of the human reviewer throughout the system design. The goal was never simply to generate tags automatically. Instead, the project aimed to build a review platform in which machine outputs could be inspected, questioned, corrected, and documented.
