@@ -242,7 +242,43 @@
     Our prompts were refined over time to meet our stakeholders' original vision of the tagging behavior.
     For instance, one of our tags (Privacy Risk), had to be continuously refined, since the LLM was incorrectly flagging coaches who were sharing official ministry resources.
 
-	
+    \begin{figure}[htbp]
+        \centering
+        \begin{tikzpicture}
+            \begin{axis}[
+                xbar,
+                bar width=0.65cm,
+                width=0.85\linewidth,
+                height=5.5cm,
+                enlarge y limits=0.35,
+                xlabel={Accuracy (\%)},
+                xmin=0, xmax=100,
+                clip=false,
+                symbolic y coords={small,gpt5few,gpt5ai,claude},
+                ytick=data,
+                yticklabels={
+                    {\shortstack[r]{Small Models\\\footnotesize(v1 prompt)}},
+                    {\shortstack[r]{GPT-5-mini\\\footnotesize(few-shot prompt)}},
+                    {\shortstack[r]{GPT-5-mini\\\footnotesize(AI-refined prompt)}},
+                    {\shortstack[r]{Claude Sonnet 4.6\\\footnotesize(v1 prompt, reference)}}
+                },
+                yticklabel style={align=right},
+                nodes near coords,
+                nodes near coords align={horizontal},
+                nodes near coords style={font=\small},
+                xmajorgrids=true,
+                grid style={dashed, gray!40},
+            ]
+            \addplot[fill=red!50,    draw=red!70]    coordinates {(46.67,small)};
+            \addplot[fill=orange!60, draw=orange!80] coordinates {(90.98,gpt5few)};
+            \addplot[fill=green!50,  draw=green!70]  coordinates {(95.30,gpt5ai)};
+            \addplot[fill=blue!40,   draw=blue!60]   coordinates {(100,claude)};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Effect of prompt refinement on accuracy. GPT-5-mini (\$2.00/M output) with an AI-refined prompt reaches 95.30\%, approaching Claude Sonnet 4.6 (\$15.00/M output) at 100\% on the naive first prompt.}
+        \label{fig:prompt-refinement}
+    \end{figure}
+
 	{\color{red}
 		This section should explain how prompt refinement affected system behavior in practice. Good topics include:
 		\begin{itemize}
